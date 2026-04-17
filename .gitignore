@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment (uv)
+.venv/
+
+# macOS
+.DS_Store
+
+# Temporary image output
+de-noised/
+thum/
+
+# Archive files
+*.rar
+*.zip

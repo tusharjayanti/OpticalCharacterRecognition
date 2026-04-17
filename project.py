@@ -9,15 +9,13 @@ def detect_twist_direction(im):
     cycle = 92
     value = 0
     count = 0
-    
-    for i in range(cycle/2):
+
+    for i in range(cycle//2):
         for j in range(im.size[1]):
             if im.getpixel((i, j)) < 200:
                 value += j
                 count += 1
     avg_value = value / count
-    #print 'avg_value'
-    #print avg_value
     if avg_value >= 25:
         direction = -1
     else:
@@ -78,11 +76,10 @@ def remove_noise(folder_name):
     chars_path = new_folder + '/chars'
 
     cwd = os.getcwd()
-    print cwd
+    print(cwd)
 
-    #file_list = os.listdir(folder_name)[0:10]
     file_list = os.listdir(folder_name)
-    print file_list
+    print(file_list)
     os.chdir(folder_name)
     if not os.path.exists(new_folder):
         os.makedirs(new_folder)
@@ -94,14 +91,8 @@ def remove_noise(folder_name):
             continue
         im = Image.open(file_name).convert('L')
         im.load()
-        """
-        print im.format
-        print im.size
-        print im.size[0]
-        print im.size[1]
-        print im.mode"""
         r = im.getpixel((0,0))
-        print r
+        print(r)
 
         for i in range(im.size[1]):
             for j in range(im.size[0]):
@@ -112,7 +103,6 @@ def remove_noise(folder_name):
                     count = count_pixel(im, (j, i))
                     if count <= 4:
                         im.putpixel((j, i), 255)
-                
 
         remove_twist(im)
         im.save(new_folder + '/' + file_name, 'PNG')
@@ -123,7 +113,7 @@ def remove_noise(folder_name):
                 if im.getpixel((i, j)) < 200:
                     sum_num += 1
             histogram.append(sum_num)
-        print histogram
+        print(histogram)
 
         start = None
         index = 1
@@ -139,16 +129,16 @@ def remove_noise(folder_name):
             if start == None:
                 start = i
 
-    os.chdir(cwd)    
+    os.chdir(cwd)
 
 def extract_features(folder_name, data_points):
     icon_dir = 'thum'
 
     cwd = os.getcwd()
-    print cwd
+    print(cwd)
 
     file_list = os.listdir(folder_name)
-    print file_list
+    print(file_list)
     os.chdir(folder_name)
     if not os.path.exists(icon_dir):
         os.makedirs(icon_dir)
@@ -164,39 +154,35 @@ def extract_features(folder_name, data_points):
             continue
         im = Image.open(file_name).resize(re_size)
         im.load()
-        print im.format
-        print im.size
-        print im.mode
+        print(im.format)
+        print(im.size)
+        print(im.mode)
         r = im.getpixel((0,0))
-        print r
+        print(r)
 
         # calculate horizon sum
         for i in range(re_size_width):
-            sum = 0
+            col_sum = 0
             for j in range(re_size_height):
                 if im.getpixel((i, j)) < 200:
-                    sum += 1
-            data_point.append(sum)
+                    col_sum += 1
+            data_point.append(col_sum)
 
         # calculate vertical sum
         for i in range(re_size_height):
-            sum = 0
+            row_sum = 0
             for j in range(re_size_width):
-                if im.getpixel((j,i)) < 200:
-                    sum += 1
-            data_point.append(sum)
+                if im.getpixel((j, i)) < 200:
+                    row_sum += 1
+            data_point.append(row_sum)
 
         im.save(icon_dir + '/' + file_name, 'PNG')
-        """if is_class_label == True:
-            data_point.append(1)
-        else:
-            data_point.append(0)"""
 
-        print data_point
-        print len(data_point)
+        print(data_point)
+        print(len(data_point))
         data_points.append(data_point)
 
-    os.chdir(cwd)   
+    os.chdir(cwd)
 
 def read_data(file_name, is_class=False):
     input_data = open(file_name, 'r')
@@ -211,9 +197,7 @@ def read_data(file_name, is_class=False):
             else:
                 converted_values.append(0.0)
             data_points.append(converted_values)
-        except ValueError,e:
-            #print "error",e,"on line",i
-            #time.sleep(1)
+        except ValueError as e:
             continue
     input_data.close()
 
@@ -223,7 +207,7 @@ def output_data(item_list, file_name):
     output_file = open(file_name, 'w')
     for item in item_list:
         string = str(item).replace('[', '').replace('.0]', '').replace(',', '').replace(']', '')
-        print>>output_file, string
+        print(string, file=output_file)
     output_file.close()
 
 # calculate the probability of y = 1
@@ -297,10 +281,9 @@ def initial_run(data_points, true_label_num):
     global label
     w_list = [0] * len(data_points[0])
     # step can not go over 0.00005
-    #step = 0.00003
     step = 0.00005
 
-    print 'performing Gradient Decent Algorithms ... '
+    print('performing Gradient Decent Algorithms ... ')
     count = 0
     while True:
         p_list = get_p_list(data_points, w_list)
@@ -311,37 +294,32 @@ def initial_run(data_points, true_label_num):
         # only for test and debug
         if count >= 200:
             acc, true_positives = calculate_acc(data_points, p_list)
-            print 'training label:'
-            print label
-            print 'accuracy:'
-            print acc
-            print 'true positive counts:'
-            print str(true_positives) + '/' + str(true_label_num)
-            print 'the list of derivation on w:'
-            if len(total_der_w) > 10:
-                #print total_der_w[0:10]
-                print total_der_w
-            else:
-                print total_der_w
-            print 'w list:'
-            print w_list
+            print('training label:')
+            print(label)
+            print('accuracy:')
+            print(acc)
+            print('true positive counts:')
+            print(str(true_positives) + '/' + str(true_label_num))
+            print('the list of derivation on w:')
+            print(total_der_w)
+            print('w list:')
+            print(w_list)
             count = 0
-            #time.sleep(2)
 
         count += 1
         if is_stop_condition(0.5, total_der_w):
-            print 'a stop condition has been met'
+            print('a stop condition has been met')
             acc, true_positives = calculate_acc(data_points, p_list)
-            print 'training label:'
-            print label
-            print 'accuracy:'
-            print acc
-            print 'true positive counts:'
-            print str(true_positives) + '/' + str(true_label_num)
-            print 'the list of derivation on w:'
-            print total_der_w
-            print 'w list:'
-            print w_list
+            print('training label:')
+            print(label)
+            print('accuracy:')
+            print(acc)
+            print('true positive counts:')
+            print(str(true_positives) + '/' + str(true_label_num))
+            print('the list of derivation on w:')
+            print(total_der_w)
+            print('w list:')
+            print(w_list)
             break
 
     return w_list, acc, true_positives
@@ -356,12 +334,10 @@ def validation_run(data_points):
         shuffle(data_points)
 
         # construct the output file name
-        # these output files are used for recording test sets on each round
-        # it would be convenient if we want to reproduce the result using these sets
         file_name = 'data_' + str(round_num) + '.txt'
         output_data(data_points, file_name)
-        test_data = data_points[0:len(data_points)/10]
-        training_data = data_points[len(data_points)/10:-1]
+        test_data = data_points[0:len(data_points)//10]
+        training_data = data_points[len(data_points)//10:-1]
 
         # recording test data
         file_name = 'test_data_' + str(round_num) + '.txt'
@@ -381,31 +357,31 @@ def validation_run(data_points):
 
             # check if the stop condition is meet
             if is_stop_condition(0.5, total_der_w):
-                print 'accuracy on training data:'
-                print calculate_acc(training_data, p_list)
-                print 'the list of derivation on w:'
-                print total_der_w
-                print 'w list:'
-                print w_list
+                print('accuracy on training data:')
+                print(calculate_acc(training_data, p_list))
+                print('the list of derivation on w:')
+                print(total_der_w)
+                print('w list:')
+                print(w_list)
                 break
 
-        print 'finished training'
-        print 'now feeding the test data ...'
+        print('finished training')
+        print('now feeding the test data ...')
         time.sleep(1)
 
         p_list = get_p_list(test_data, w_list)
-        print 'accuracy on test data:'
+        print('accuracy on test data:')
         acc = calculate_acc(test_data, p_list)
-        print acc
+        print(acc)
         accuracy_list.append(acc)
-        print 'starting next round in 3 secs ... \n'
+        print('starting next round in 3 secs ... \n')
         time.sleep(3)
 
-    print 'all rounds finished'
-    print 'the accuracy list:'
-    print accuracy_list
-    print 'the average accuracy:'
-    print sum(accuracy_list) / len(accuracy_list)
+    print('all rounds finished')
+    print('the accuracy list:')
+    print(accuracy_list)
+    print('the average accuracy:')
+    print(sum(accuracy_list) / len(accuracy_list))
 
 def gather_data_points(path):
     folder_list = os.listdir(path)
@@ -415,18 +391,15 @@ def gather_data_points(path):
         data_points = []
         extract_features(path + '/' + folder_name, data_points)
         if not os.path.exists('data_points'):
-            os.makedirs('data_points') 
+            os.makedirs('data_points')
         output_data(data_points, 'data_points/' + folder_name + '.txt')
 
 def read_data_points(path, label):
-    print 'reading the data points ...'
+    print('reading the data points ...')
     data_points = read_data(path + '/' + label + '.txt', True)
     true_label_num = len(data_points)
-    #data_points.extend(read_data(path + '/b.txt', False))
-    #data_points.extend(read_data(path + '/c.txt', False))
-    #data_points.extend(read_data(path + '/d.txt', False))
     file_list = os.listdir(path)
-    print file_list
+    print(file_list)
     for item in file_list:
         if item == '.' or item == '..':
             continue
@@ -436,7 +409,7 @@ def read_data_points(path, label):
 
         data = read_data(path + '/' + item, False)
         if data == []:
-            print item + ' skipped'
+            print(item + ' skipped')
             continue
         data_points.extend(data)
 
@@ -450,13 +423,13 @@ def save_w_list(w_list, acc, true_positives, true_label_num, label):
 
     file_name = 'w_list/accuracy_' + label + '.txt'
     output_file = open(file_name, 'w')
-    print>>output_file, acc
-    print>>output_file, str(true_positives) + '/' + str(true_label_num)
+    print(acc, file=output_file)
+    print(str(true_positives) + '/' + str(true_label_num), file=output_file)
     output_file.close()
 
 def load_w_list(label):
     if not os.path.exists('w_list'):
-        print 'w_list folder doest not exist'
+        print('w_list folder does not exist')
         return
 
     w_list = []
@@ -466,8 +439,7 @@ def load_w_list(label):
         try:
             converted_values = float(line)
             w_list.append(converted_values)
-        except ValueError,e:
-            #print "error",e,"on line",i
+        except ValueError as e:
             continue
 
     input_data.close()
@@ -485,16 +457,16 @@ def demo_run():
 #gather_data_points('captcha/class')
 label = '6'
 data_points, true_label_num = read_data_points('data_points', label)
-print 'number of data points read:'
-print len(data_points)
-print 'number of true labeled data:'
-print true_label_num
-print 'label'
-print label
-print ''
+print('number of data points read:')
+print(len(data_points))
+print('number of true labeled data:')
+print(true_label_num)
+print('label')
+print(label)
+print('')
 
 # read all data from the file
-mode = input('Choose the task: \n(1) initial run using all data set \n(2) validation runs with randomly selected training data \n(3) demo runs to classfy the character images at given location \n')
+mode = int(input('Choose the task: \n(1) initial run using all data set \n(2) validation runs with randomly selected training data \n(3) demo runs to classfy the character images at given location \n'))
 
 if mode == 1:
     w_list, acc, true_positives = initial_run(data_points, true_label_num)
@@ -505,5 +477,5 @@ elif mode == 2:
 elif mode == 3:
     demo_run()
 else:
-    print 'invalid input'
+    print('invalid input')
     sys.exit(0)

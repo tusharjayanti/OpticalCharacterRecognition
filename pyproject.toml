@@ -1,0 +1,8 @@
+[project]
+name = "optical-character-recognition"
+version = "0.1.0"
+description = "OCR from scratch: image preprocessing, pixel projection features, and logistic regression — no ML frameworks"
+requires-python = ">=3.8"
+dependencies = [
+    "Pillow",
+]
